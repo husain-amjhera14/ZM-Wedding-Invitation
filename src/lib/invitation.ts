@@ -261,27 +261,51 @@ export const DEVELOPER_CREDIT = {
   )}`,
 } as const;
 
+export const SENDER_RELATIONS = [
+  {
+    id: "parents",
+    label: "Parents",
+    subtitle: "our daughter",
+    phrase: "our beloved daughter",
+  },
+  {
+    id: "sibling",
+    label: "Sibling / Cousin",
+    subtitle: "my sister",
+    phrase: "my beloved sister",
+  },
+  {
+    id: "uncle",
+    label: "Uncle / Aunty",
+    subtitle: "our niece",
+    phrase: "our beloved niece",
+  },
+] as const;
+
+export type SenderRelationId = (typeof SENDER_RELATIONS)[number]["id"];
+
 export function buildShareWhatsAppMessage(
   guestName: string,
   inviteUrl: string,
-  _invitees?: string
+  _invitees?: string,
+  relationId: SenderRelationId = "parents"
 ): string {
   const greeting = guestName ? `Salaam *${guestName}*,` : "Salaam,";
+  const relation =
+    SENDER_RELATIONS.find((r) => r.id === relationId) ?? SENDER_RELATIONS[0];
 
   return [
     "\u200Eبسم الله الرحمن الرحيم\u200E",
     "",
     greeting,
     "",
-    "By the grace of Allah Ta'ala and the dua mubarak of Aqa Maula (T.U.S.),",
+    `We cordially invite you to the auspicious occasion of the wedding of ${relation.phrase} *${WEDDING.bride.name}* with *${WEDDING.groom.name}*.`,
     "",
-    `With the blessings of grandparents, *${WEDDING.bride.grandparents}*,`,
+    "Your gracious presence and duas will make this celebration truly memorable.",
     "",
-    `*${WEDDING.bride.parents}* cordially invite you to the auspicious occasion of the wedding of their beloved daughter *${WEDDING.bride.name}* with *${WEDDING.groom.name}*.`,
+    "We look forward to celebrating this joyous occasion with you!",
     "",
-    "Your presence and duas will make our celebration truly memorable.",
-    "",
-    "Click to open your e-invite:",
+    "*Click below to view your e-invite:*",
     inviteUrl,
     "",
     "With Warm Regards,",

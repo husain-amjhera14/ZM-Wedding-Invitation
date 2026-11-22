@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import {
   WEDDING,
+  SENDER_RELATIONS,
+  SenderRelationId,
   buildInvitePath,
   buildShareWhatsAppMessage,
   formatSlugToName,
@@ -32,6 +34,7 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
 
   const [guestName, setGuestName] = useState("");
   const [invitees, setInvitees] = useState("");
+  const [relationId, setRelationId] = useState<SenderRelationId>("parents");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const guestInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -65,7 +68,8 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
   const singleWhatsAppMessage = buildShareWhatsAppMessage(
     guestName.trim() ? previewDisplayName : "",
     singleFullUrl,
-    invitees.trim() || undefined
+    invitees.trim() || undefined,
+    relationId
   );
 
   const bulkItems = useMemo(() => {
@@ -83,7 +87,8 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
         const waMsg = buildShareWhatsAppMessage(
           formattedName,
           fullUrl,
-          rawInv || undefined
+          rawInv || undefined,
+          relationId
         );
         return {
           id: `${index}-${path}`,
@@ -94,7 +99,7 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
           waUrl: `https://wa.me/?text=${encodeURIComponent(waMsg)}`,
         };
       });
-  }, [bulkInput, normalizedBaseUrl]);
+  }, [bulkInput, normalizedBaseUrl, relationId]);
 
   const copyText = async (text: string, id: string) => {
     try {
@@ -260,7 +265,6 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
                     { label: "Shk.", position: "prefix" },
                     { label: "Bhai", position: "suffix" },
                     { label: "Ben", position: "suffix" },
-                    { label: "Saheb", position: "suffix" },
                     { label: "& Family", position: "suffix" },
                   ] as const
                 ).map((chip) => (
@@ -336,20 +340,39 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
               </div>
             </div>
 
-            {/* Live Greeting Preview */}
-            <div className="rounded-xl bg-[#f3ece1]/80 border border-[#b68d40]/30 p-4 text-center space-y-1">
-              <p className="font-sans-ui text-[10px] uppercase tracking-[0.2em] text-[#9a7942] font-semibold flex items-center justify-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Hero Greeting Preview
+            {/* Sending As (Relation Selector) */}
+            <div className="space-y-2">
+              <p className="font-sans-ui text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9a7942]">
+                Sending As (Message Relation)
               </p>
-              <p className="font-serif-body text-2xl font-semibold text-[#5e0e24]">
-                {previewDisplayName}
-                {invitees.trim() && (
-                  <span className="font-sans-ui text-xs font-medium text-[#9a7942] ml-2">
-                    ({invitees.trim()})
-                  </span>
-                )}
-              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {SENDER_RELATIONS.map((rel) => {
+                  const active = relationId === rel.id;
+                  return (
+                    <button
+                      key={rel.id}
+                      type="button"
+                      onClick={() => setRelationId(rel.id)}
+                      className={`cursor-pointer rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                        active
+                          ? "bg-[#5e0e24] text-[#faf7f2] border-[#5e0e24]"
+                          : "bg-[#faf7f2] text-[#5e0e24] border-[#b68d40]/35 hover:bg-[#5e0e24]/10"
+                      }`}
+                    >
+                      <span className="block font-sans-ui text-xs font-semibold leading-tight">
+                        {rel.label}
+                      </span>
+                      <span
+                        className={`block font-serif-body italic text-xs mt-0.5 ${
+                          active ? "text-[#f3ece1]/85" : "text-[#6c4c55]"
+                        }`}
+                      >
+                        &ldquo;{rel.subtitle}&rdquo;
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Generated URL */}
