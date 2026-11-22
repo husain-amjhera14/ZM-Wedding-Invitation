@@ -15,7 +15,6 @@ import {
   WEDDING,
   DEVELOPER_CREDIT,
   ParsedInvite,
-  buildWhatsAppRsvpUrl,
 } from "@/lib/invitation";
 import OpeningCurtain from "./OpeningCurtain";
 import FallingLeaves from "./FallingLeaves";
@@ -127,11 +126,6 @@ function HangingLantern({
 }
 
 export default function InvitationView({ invite }: Props) {
-  // RSVP form state
-  const [rsvpName, setRsvpName] = useState(invite.guestName ?? "");
-  const [rsvpGuests, setRsvpGuests] = useState(invite.invitees ?? "1");
-  const [attending, setAttending] = useState<"accept" | "decline">("accept");
-
   // Background music state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
@@ -225,16 +219,6 @@ export default function InvitationView({ invite }: Props) {
           .catch(() => { });
       }
     }
-  };
-
-  const handleConfirmRsvp = (e: React.FormEvent) => {
-    e.preventDefault();
-    const url = buildWhatsAppRsvpUrl(
-      rsvpName || invite.displayName,
-      rsvpGuests,
-      attending
-    );
-    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -553,118 +537,7 @@ export default function InvitationView({ invite }: Props) {
       </section>
 
       {/* ========================================================= */}
-      {/* 5. KINDLY RESPOND — WILL YOU JOIN US? (Floral Ivory)      */}
-      {/* ========================================================= */}
-      <section
-        id="rsvp"
-        className="relative w-full bg-[#faf7f2] py-20 sm:py-24 px-5 text-center overflow-hidden"
-      >
-        {/* Soft Watercolor Floral Watermark */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80 pointer-events-none select-none"
-          style={{ backgroundImage: 'url("/images/floral-watermark.webp")' }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-[#faf7f2]/75 via-[#faf7f2]/20 to-[#faf7f2]/75 pointer-events-none"
-        />
-
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          className="relative z-10 max-w-xl mx-auto"
-        >
-          <p className="font-sans-ui text-[10px] sm:text-[11px] tracking-[0.26em] uppercase text-[#9a7942] font-medium">
-            Kindly Respond
-          </p>
-          <h2 className="font-serif-body text-3xl sm:text-[42px] font-medium text-[#5e0e24] mt-2 mb-9">
-            Will You Join Us?
-          </h2>
-
-          <form
-            onSubmit={handleConfirmRsvp}
-            className="soft-card rounded-2xl p-6 sm:p-9 text-left space-y-6"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="rsvp-name"
-                  className="block font-sans-ui text-[10px] tracking-[0.2em] uppercase text-[#9a7942] font-semibold mb-2"
-                >
-                  Your Name
-                </label>
-                <input
-                  id="rsvp-name"
-                  type="text"
-                  required
-                  value={rsvpName}
-                  onChange={(e) => setRsvpName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="w-full rounded-lg bg-[#f3ece1]/85 border border-[#b68d40]/25 px-4 py-2.5 font-serif-body text-lg text-[#3c1822] placeholder:text-[#6c4c55]/50 focus:outline-none focus:border-[#5e0e24]"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="rsvp-guests"
-                  className="block font-sans-ui text-[10px] tracking-[0.2em] uppercase text-[#9a7942] font-semibold mb-2"
-                >
-                  Guests
-                </label>
-                <input
-                  id="rsvp-guests"
-                  type="text"
-                  value={rsvpGuests}
-                  onChange={(e) => setRsvpGuests(e.target.value)}
-                  placeholder="1"
-                  className="w-full rounded-lg bg-[#f3ece1]/85 border border-[#b68d40]/25 px-4 py-2.5 font-serif-body text-lg text-[#3c1822] placeholder:text-[#6c4c55]/50 focus:outline-none focus:border-[#5e0e24]"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="font-serif-body text-base text-[#6c4c55] mr-1">
-                Attending?
-              </span>
-              <button
-                type="button"
-                onClick={() => setAttending("accept")}
-                className={`cursor-pointer px-5 py-2 rounded-full font-serif-body text-sm sm:text-base transition-colors ${attending === "accept"
-                  ? "bg-[#5e0e24] text-[#faf7f2] shadow-sm"
-                  : "border border-[#b68d40]/40 text-[#5e0e24] hover:bg-[#5e0e24]/5"
-                  }`}
-              >
-                Joyfully Accept
-              </button>
-              <button
-                type="button"
-                onClick={() => setAttending("decline")}
-                className={`cursor-pointer px-5 py-2 rounded-full font-serif-body text-sm sm:text-base transition-colors ${attending === "decline"
-                  ? "bg-[#5e0e24] text-[#faf7f2] shadow-sm"
-                  : "border border-[#b68d40]/40 text-[#5e0e24] hover:bg-[#5e0e24]/5"
-                  }`}
-              >
-                Regretfully Decline
-              </button>
-            </div>
-
-            <div className="pt-2 text-center">
-              <button
-                type="submit"
-                className="btn-burgundy cursor-pointer inline-flex items-center justify-center px-9 py-3 rounded-full font-sans-ui text-[11px] tracking-[0.22em] uppercase font-semibold"
-              >
-                Send Confirmation
-              </button>
-            </div>
-          </form>
-        </motion.div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* 6. FULL-BLEED DEEP BURGUNDY FOOTER                        */}
+      {/* 5. FULL-BLEED DEEP BURGUNDY FOOTER                        */}
       {/* ========================================================= */}
       <footer className="hero-burgundy-lattice w-full text-[#faf7f2] py-16 sm:py-20 px-5 text-center">
         <div className="max-w-2xl mx-auto space-y-2.5">
