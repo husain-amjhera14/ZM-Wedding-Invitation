@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     type: "website",
     title: `${WEDDING.bride.name} & ${WEDDING.groom.name} — Wedding Invitation`,
     description: `Tuesday, 12th Jan 2027 (5 Shaban Al Karim 1448 H) • Dinner 8:00 P.M. at Siyaganj Jamat Khana, Indore.`,
-    images: [{ url: "/api/og", width: 1200, height: 630 }],
+    images: [{ url: "/api/og", width: 600, height: 600 }],
   },
   twitter: {
     card: "summary_large_image",

@@ -2,7 +2,8 @@ export const WEDDING = {
   monogram: "ZM",
   bride: {
     name: "Zahra",
-    parents: "Mrs. Tasneem ben & Mr. Murtaza bhai Amjherawala (NKD, MKD)",
+    parents: "Mrs. Tasneem ben & Mr. Murtaza bhai Amjherawala",
+    parentsTitles: "(NKD, MKD)",
     grandparents: "Late Sakina ben & Late Shk. Najmuddin bhai Amjherawala",
   },
   groom: {
@@ -265,22 +266,33 @@ export function buildShareWhatsAppMessage(
   inviteUrl: string,
   invitees?: string
 ): string {
-  const greeting = guestName ? `Salaam ${guestName},` : "Salaam,";
-  const inviteeLine = invitees ? `\nInvitees: ${invitees}` : "";
-  return [
-    greeting,
-    "",
-    `With the grace of Allah Ta'ala and the blessings of Grand Parents *${WEDDING.bride.grandparents}*, *${WEDDING.bride.parents}* cordially invite you to the auspicious occasion of the wedding of their beloved daughter *${WEDDING.bride.name}* with *${WEDDING.groom.name}*.`,
+  const greeting = guestName ? `Salaam *${guestName}*,` : "Salaam,";
+  const inviteeLine = invitees ? `Invitees: ${invitees}` : null;
+  const eventLines = [
     inviteeLine,
     `Date: ${WEDDING.event.fullDate} (${WEDDING.event.hijriDate})`,
     `Dinner: 8:00 P.M. at ${WEDDING.venue.name}, Indore`,
+  ].filter(Boolean);
+
+  return [
+    "\u200Eبسم الله الرحمن الرحيم\u200E",
     "",
-    "View your personalized invitation here:",
+    greeting,
+    "",
+    "By the grace of Allah Ta'ala and the dua mubarak of Aqa Maula (T.U.S.),",
+    "",
+    `With the blessings of grandparents, *${WEDDING.bride.grandparents}*,`,
+    "",
+    `*${WEDDING.bride.parents}* cordially invite you to the auspicious occasion of the wedding of their beloved daughter *${WEDDING.bride.name}* with *${WEDDING.groom.name}*.`,
+    "",
+    ...eventLines,
+    "",
+    "Your presence and duas will make our celebration truly memorable.",
+    "",
+    "Click to open your e-invite:",
     inviteUrl,
     "",
-    `With Warm Regards,`,
-    `${WEDDING.host.family}`,
-  ]
-    .filter((line, idx, arr) => !(line === "" && arr[idx - 1] === ""))
-    .join("\n");
+    "With Warm Regards,",
+    `*${WEDDING.host.family}*`,
+  ].join("\n");
 }

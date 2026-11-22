@@ -24,19 +24,26 @@ export async function generateMetadata({
     ? `Dear ${invite.displayName}${inviteeText}, ${WEDDING.bride.parents} cordially invite you to the wedding of ${WEDDING.bride.name} & ${WEDDING.groom.name} on ${WEDDING.event.fullDate} (${WEDDING.event.hijriDate}) at ${WEDDING.venue.name}, Indore.`
     : `${WEDDING.bride.parents} solicit the honour of your presence on ${WEDDING.event.fullDate} (${WEDDING.event.hijriDate}) at ${WEDDING.venue.name}, Indore.`;
 
-  const ogParams = new URLSearchParams();
-  if (invite.guestName) ogParams.set("name", invite.guestName);
-  if (invite.invitees) ogParams.set("invitees", invite.invitees);
-  const ogUrl = ogParams.toString() ? `/api/og?${ogParams.toString()}` : "/api/og";
+  const ogUrl = "/api/og";
 
   return {
     title,
     description,
     openGraph: {
       type: "website",
+      siteName: `${WEDDING.bride.name} & ${WEDDING.groom.name} — Wedding Invitation`,
+      url: invite.slugPath,
       title,
       description,
-      images: [{ url: ogUrl, width: 1200, height: 630 }],
+      images: [
+        {
+          url: ogUrl,
+          width: 600,
+          height: 600,
+          type: "image/png",
+          alt: `${WEDDING.bride.name} & ${WEDDING.groom.name} — 12 Jan 2027`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",

@@ -8,9 +8,6 @@ import {
   MapPin,
   Phone,
   ArrowDown,
-  Copy,
-  Check,
-  Download,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -18,12 +15,8 @@ import {
   WEDDING,
   DEVELOPER_CREDIT,
   ParsedInvite,
-  buildGoogleCalendarUrl,
-  buildIcsContent,
   buildWhatsAppRsvpUrl,
-  buildWhatsAppWishesUrl,
 } from "@/lib/invitation";
-import Countdown from "./Countdown";
 import OpeningCurtain from "./OpeningCurtain";
 import FallingLeaves from "./FallingLeaves";
 
@@ -139,14 +132,6 @@ export default function InvitationView({ invite }: Props) {
   const [rsvpGuests, setRsvpGuests] = useState(invite.invitees ?? "1");
   const [attending, setAttending] = useState<"accept" | "decline">("accept");
 
-  // Wishes form state
-  const [wishName, setWishName] = useState(invite.guestName ?? "");
-  const [wishMessage, setWishMessage] = useState("");
-  const [wishSent, setWishSent] = useState(false);
-
-  // Copy address feedback
-  const [copiedAddress, setCopiedAddress] = useState(false);
-
   // Background music state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
@@ -171,8 +156,21 @@ export default function InvitationView({ invite }: Props) {
     }
   }, []);
 
-  // Attempt to play unmuted on mount; if browser blocks autoplay, start on first user gesture
+  // Attempt to play unmuted on mount (unless muted earlier in this session)
   useEffect(() => {
+    try {
+      if (sessionStorage.getItem("zm_music_muted") === "1") {
+        userMutedRef.current = true;
+        setIsMuted(true);
+        if (audioRef.current) {
+          audioRef.current.muted = true;
+        }
+        return;
+      }
+    } catch {
+      // ignore storage errors
+    }
+
     tryPlayMusic();
 
     const handleFirstInteraction = () => {
@@ -205,11 +203,21 @@ export default function InvitationView({ invite }: Props) {
       userMutedRef.current = true;
       audio.muted = true;
       setIsMuted(true);
+      try {
+        sessionStorage.setItem("zm_music_muted", "1");
+      } catch {
+        // ignore storage errors
+      }
     } else {
       userMutedRef.current = false;
       audio.volume = 0.45;
       audio.muted = false;
       setIsMuted(false);
+      try {
+        sessionStorage.removeItem("zm_music_muted");
+      } catch {
+        // ignore storage errors
+      }
       if (audio.paused) {
         audio
           .play()
@@ -217,34 +225,6 @@ export default function InvitationView({ invite }: Props) {
           .catch(() => { });
       }
     }
-  };
-
-  const handleCopyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(WEDDING.venue.fullAddress);
-    } catch {
-      const el = document.createElement("textarea");
-      el.value = WEDDING.venue.fullAddress;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-    }
-    setCopiedAddress(true);
-    setTimeout(() => setCopiedAddress(false), 2200);
-  };
-
-  const handleDownloadIcs = () => {
-    const ics = buildIcsContent();
-    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Zahra-Mufaddal-Wedding.ics";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const handleConfirmRsvp = (e: React.FormEvent) => {
@@ -255,17 +235,6 @@ export default function InvitationView({ invite }: Props) {
       attending
     );
     window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  const handleSendWishes = (e: React.FormEvent) => {
-    e.preventDefault();
-    const url = buildWhatsAppWishesUrl(
-      wishName || invite.displayName,
-      wishMessage
-    );
-    window.open(url, "_blank", "noopener,noreferrer");
-    setWishSent(true);
-    setTimeout(() => setWishSent(false), 4000);
   };
 
   return (
@@ -309,10 +278,10 @@ export default function InvitationView({ invite }: Props) {
 
         {/* Hanging Glowing Lanterns */}
         <div className="absolute top-0 left-[6%] sm:left-[12%] md:left-[16%] z-10 opacity-90">
-          <HangingLantern cordHeight={56} />
+          <HangingLantern cordHeight={68} />
         </div>
-        <div className="absolute top-0 right-[6%] sm:right-[12%] md:right-[16%] z-10 opacity-90">
-          <HangingLantern cordHeight={88} delayed />
+        <div className="absolute top-0 right-[6%] sm:right-[12%] md:left-auto md:right-[16%] z-10 opacity-90">
+          <HangingLantern cordHeight={68} delayed />
         </div>
 
         {/* Centered Ivory Architectural Arch */}
@@ -445,7 +414,7 @@ export default function InvitationView({ invite }: Props) {
           {/* Bride's Parents & Formal Invitation */}
           <div className="mt-8 space-y-1.5">
             <p className="font-serif-body text-xl sm:text-2xl font-semibold text-[#5e0e24]">
-              {WEDDING.bride.parents}
+              {WEDDING.bride.parents} {WEDDING.bride.parentsTitles}
             </p>
             <p className="font-serif-body text-base sm:text-lg text-[#6c4c55] leading-relaxed max-w-xl mx-auto">
               solicit the honour of your presence at the auspicious occasion of
@@ -517,121 +486,68 @@ export default function InvitationView({ invite }: Props) {
             Program Inshaallah
           </h2>
 
-          {/* 3 Clean Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-            <div className="soft-card rounded-xl px-6 py-8 flex flex-col items-center">
-              <div className="w-12 h-12 sm:w-11 sm:h-11 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center mb-4">
-                <Calendar className="w-5 h-5 sm:w-4 sm:h-4 text-[#b68d40]" />
+          {/* Unified Box: Icon-Left Rows on Mobile, 3 Divided Columns on Desktop */}
+          <div className="soft-card rounded-2xl divide-y md:divide-y-0 md:divide-x divide-[#b68d40]/25 grid grid-cols-1 md:grid-cols-3">
+            {/* Date */}
+            <div className="p-5 sm:p-6 md:px-6 md:py-8 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-0 text-left md:text-center">
+              <div className="w-11 h-11 shrink-0 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center md:mb-4 mt-0.5 md:mt-0">
+                <Calendar className="w-4.5 h-4.5 md:w-4 md:h-4 text-[#b68d40]" />
               </div>
-              <p className="font-sans-ui text-xs sm:text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
-                Date
-              </p>
-              <p className="font-serif-body text-2xl sm:text-[22px] font-semibold text-[#3c1822] mt-2">
-                {WEDDING.event.fullDate}
-              </p>
-              <p className="font-serif-body text-lg sm:text-[17px] text-[#6c4c55] mt-1">
-                {WEDDING.event.hijriDate}
-              </p>
+              <div>
+                <p className="font-sans-ui text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
+                  Date
+                </p>
+                <p className="font-serif-body text-xl sm:text-[22px] font-semibold text-[#3c1822] mt-1 md:mt-2 leading-snug">
+                  {WEDDING.event.fullDate}
+                </p>
+                <p className="font-serif-body text-base sm:text-[17px] text-[#6c4c55] mt-0.5 md:mt-1">
+                  {WEDDING.event.hijriDate}
+                </p>
+              </div>
             </div>
 
-            <div className="soft-card rounded-xl px-6 py-8 flex flex-col items-center">
-              <div className="w-12 h-12 sm:w-11 sm:h-11 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center mb-4">
-                <Clock className="w-5 h-5 sm:w-4 sm:h-4 text-[#b68d40]" />
+            {/* Time */}
+            <div className="p-5 sm:p-6 md:px-6 md:py-8 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-0 text-left md:text-center">
+              <div className="w-11 h-11 shrink-0 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center md:mb-4 mt-0.5 md:mt-0">
+                <Clock className="w-4.5 h-4.5 md:w-4 md:h-4 text-[#b68d40]" />
               </div>
-              <p className="font-sans-ui text-xs sm:text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
-                Time
-              </p>
-              <p className="font-serif-body text-2xl sm:text-[22px] font-semibold text-[#3c1822] mt-2">
-                8:00 P.M. Onwards
-              </p>
-              <p className="font-serif-body text-lg sm:text-[17px] text-[#6c4c55] mt-1">
-                Wedding Dinner
-              </p>
+              <div>
+                <p className="font-sans-ui text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
+                  Time
+                </p>
+                <p className="font-serif-body text-xl sm:text-[22px] font-semibold text-[#3c1822] mt-1 md:mt-2 leading-snug">
+                  8:00 P.M. Onwards
+                </p>
+                <p className="font-serif-body text-base sm:text-[17px] text-[#6c4c55] mt-0.5 md:mt-1">
+                  Dinner
+                </p>
+              </div>
             </div>
 
-            <div className="soft-card rounded-xl px-6 py-8 flex flex-col items-center">
-              <div className="w-12 h-12 sm:w-11 sm:h-11 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center mb-4">
-                <MapPin className="w-5 h-5 sm:w-4 sm:h-4 text-[#b68d40]" />
+            {/* Venue (Linked to Google Maps) */}
+            <div className="p-5 sm:p-6 md:px-6 md:py-8 flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-0 text-left md:text-center">
+              <div className="w-11 h-11 shrink-0 rounded-full border border-[#b68d40]/50 bg-[#faf7f2] flex items-center justify-center md:mb-4 mt-0.5 md:mt-0">
+                <MapPin className="w-4.5 h-4.5 md:w-4 md:h-4 text-[#b68d40]" />
               </div>
-              <p className="font-sans-ui text-xs sm:text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
-                Venue
-              </p>
-              <p className="font-serif-body text-2xl sm:text-[22px] font-semibold text-[#3c1822] mt-2">
-                {WEDDING.venue.name}
-              </p>
-              <p className="font-serif-body text-lg sm:text-[17px] text-[#6c4c55] mt-1">
-                {WEDDING.venue.city}
-              </p>
+              <div>
+                <p className="font-sans-ui text-[11px] tracking-[0.24em] uppercase text-[#9a7942] font-semibold">
+                  Venue
+                </p>
+                <a
+                  href={WEDDING.venue.mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-block mt-1 md:mt-2"
+                >
+                  <p className="font-serif-body text-xl sm:text-[22px] font-semibold text-[#3c1822] underline decoration-[#b68d40]/75 underline-offset-2 group-hover:text-[#5e0e24] transition-colors leading-snug">
+                    {WEDDING.venue.name}
+                  </p>
+                  <p className="font-serif-body text-base sm:text-[17px] text-[#6c4c55] mt-0.5 md:mt-1">
+                    {WEDDING.venue.city}
+                  </p>
+                </a>
+              </div>
             </div>
-          </div>
-
-          {/* Countdown Timer directly below the 3 Program Boxes */}
-          <div id="countdown" className="my-12">
-            <p className="font-sans-ui text-[10px] sm:text-[11px] tracking-[0.26em] uppercase text-[#9a7942] font-medium mb-5">
-              Counting Down To The Blessed Evening
-            </p>
-            <Countdown />
-          </div>
-
-          {/* Embedded Google Map */}
-          <div className="rounded-xl overflow-hidden shadow-[0_18px_45px_-20px_rgba(60,24,34,0.28)] border border-[#b68d40]/25 bg-[#faf7f2] aspect-[16/9] sm:aspect-[21/9]">
-            <iframe
-              title="Taheri Masjid, Siyaganj (Siyaganj Jamat Khana), Indore"
-              src={WEDDING.venue.mapEmbedUrl}
-              className="w-full h-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-
-          {/* Primary Action Pills */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3.5">
-            <a
-              href={WEDDING.venue.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline-burgundy inline-flex items-center justify-center px-7 py-3 rounded-full font-sans-ui text-[11px] tracking-[0.2em] uppercase font-semibold"
-            >
-              Get Directions
-            </a>
-            <a
-              href={buildGoogleCalendarUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-burgundy inline-flex items-center justify-center px-7 py-3 rounded-full font-sans-ui text-[11px] tracking-[0.2em] uppercase font-semibold"
-            >
-              Add To Calendar
-            </a>
-          </div>
-
-          {/* Subtle Utility Links */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-5 font-sans-ui text-xs text-[#6c4c55]">
-            <button
-              type="button"
-              onClick={handleCopyAddress}
-              className="cursor-pointer inline-flex items-center gap-1.5 hover:text-[#5e0e24] transition-colors"
-            >
-              {copiedAddress ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-700" />
-                  Address Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  Copy Address
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handleDownloadIcs}
-              className="cursor-pointer inline-flex items-center gap-1.5 hover:text-[#5e0e24] transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download .ics (Apple / Outlook)
-            </button>
           </div>
         </motion.div>
       </section>
@@ -748,92 +664,7 @@ export default function InvitationView({ invite }: Props) {
       </section>
 
       {/* ========================================================= */}
-      {/* 6. DUAS FOR THE COUPLE — SEND YOUR WISHES (Textured Sand) */}
-      {/* ========================================================= */}
-      <section className="relative w-full bg-[#f3ece1] py-20 sm:py-24 px-5 text-center overflow-hidden">
-        {/* Fine Handmade Paper Texture */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-repeat opacity-70 mix-blend-multiply pointer-events-none select-none"
-          style={{
-            backgroundImage: 'url("/images/paper-texture.png")',
-            backgroundSize: "520px auto",
-          }}
-        />
-
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          className="relative z-10 max-w-xl mx-auto"
-        >
-          <p className="font-sans-ui text-[10px] sm:text-[11px] tracking-[0.26em] uppercase text-[#9a7942] font-medium">
-            Duas For The Couple
-          </p>
-          <h2 className="font-serif-body text-3xl sm:text-[42px] font-medium text-[#5e0e24] mt-2 mb-9">
-            Send Your Wishes
-          </h2>
-
-          <form
-            onSubmit={handleSendWishes}
-            className="soft-card rounded-2xl p-6 sm:p-9 text-left space-y-5"
-          >
-            <div>
-              <label
-                htmlFor="wish-name"
-                className="block font-sans-ui text-[10px] tracking-[0.2em] uppercase text-[#9a7942] font-semibold mb-2"
-              >
-                Name
-              </label>
-              <input
-                id="wish-name"
-                type="text"
-                required
-                value={wishName}
-                onChange={(e) => setWishName(e.target.value)}
-                placeholder="Your name"
-                className="w-full rounded-lg bg-[#f3ece1]/85 border border-[#b68d40]/25 px-4 py-2.5 font-serif-body text-lg text-[#3c1822] placeholder:text-[#6c4c55]/50 focus:outline-none focus:border-[#5e0e24]"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="wish-message"
-                className="block font-sans-ui text-[10px] tracking-[0.2em] uppercase text-[#9a7942] font-semibold mb-2"
-              >
-                Your Dua / Message
-              </label>
-              <textarea
-                id="wish-message"
-                rows={4}
-                required
-                value={wishMessage}
-                onChange={(e) => setWishMessage(e.target.value)}
-                placeholder="Write a warm dua or blessing for Zahra & Mufaddal..."
-                className="w-full rounded-lg bg-[#f3ece1]/85 border border-[#b68d40]/25 px-4 py-3 font-serif-body text-lg text-[#3c1822] placeholder:text-[#6c4c55]/50 focus:outline-none focus:border-[#5e0e24] resize-none"
-              />
-            </div>
-
-            <div className="pt-1 text-left sm:text-center space-y-2">
-              <button
-                type="submit"
-                className="btn-burgundy cursor-pointer inline-flex items-center justify-center px-9 py-3 rounded-full font-sans-ui text-[11px] tracking-[0.22em] uppercase font-semibold"
-              >
-                Send Wishes
-              </button>
-              {wishSent && (
-                <p className="font-serif-body italic text-sm text-[#5e0e24]">
-                  JazakAllah Khair! Opening WhatsApp to deliver your wishes.
-                </p>
-              )}
-            </div>
-          </form>
-        </motion.div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* 7. FULL-BLEED DEEP BURGUNDY FOOTER                        */}
+      {/* 6. FULL-BLEED DEEP BURGUNDY FOOTER                        */}
       {/* ========================================================= */}
       <footer className="hero-burgundy-lattice w-full text-[#faf7f2] py-16 sm:py-20 px-5 text-center">
         <div className="max-w-2xl mx-auto space-y-2.5">
