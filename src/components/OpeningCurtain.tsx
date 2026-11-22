@@ -99,9 +99,9 @@ export default function OpeningCurtain({ invite, onStartOpen }: Props) {
           className="h-16 sm:h-18 w-auto opacity-95 mb-4"
         />
 
-        {/* Warmly Invited + Guest Name */}
+        {/* Cordially Inviting + Guest Name */}
         <p className="font-sans-ui text-[10px] tracking-[0.28em] uppercase text-[#9a7942] font-semibold">
-          Warmly Invited
+          Cordially Inviting
         </p>
 
         <p className="font-serif-body text-2xl sm:text-[28px] font-semibold tracking-wide text-[#5e0e24] leading-snug mt-1.5 break-words max-w-full">
