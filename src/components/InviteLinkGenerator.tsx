@@ -124,9 +124,6 @@ export default function InviteLinkGenerator({ initialOrigin = "" }: Props) {
   };
 
   const applyNamePreset = (label: string, position: "prefix" | "suffix") => {
-    if (label.toLowerCase().includes("family")) {
-      setInvitees("All");
-    }
     const trimmed = guestName.trim();
     let nextValue = guestName;
 

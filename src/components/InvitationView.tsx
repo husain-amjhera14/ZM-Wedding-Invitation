@@ -430,11 +430,6 @@ export default function InvitationView({ invite }: Props) {
             <p className="font-serif-body text-lg sm:text-xl font-semibold text-[#5e0e24]">
               {WEDDING.nikahNote}
             </p>
-            {invite.invitees && (
-              <p className="font-sans-ui text-xs tracking-[0.2em] uppercase text-[#9a7942] font-semibold">
-                Invitees ({invite.invitees})
-              </p>
-            )}
           </div>
         </motion.div>
       </section>
