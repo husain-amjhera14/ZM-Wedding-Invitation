@@ -264,15 +264,9 @@ export const DEVELOPER_CREDIT = {
 export function buildShareWhatsAppMessage(
   guestName: string,
   inviteUrl: string,
-  invitees?: string
+  _invitees?: string
 ): string {
   const greeting = guestName ? `Salaam *${guestName}*,` : "Salaam,";
-  const inviteeLine = invitees ? `Invitees: ${invitees}` : null;
-  const eventLines = [
-    inviteeLine,
-    `Date: ${WEDDING.event.fullDate} (${WEDDING.event.hijriDate})`,
-    `Dinner: 8:00 P.M. at ${WEDDING.venue.name}, Indore`,
-  ].filter(Boolean);
 
   return [
     "\u200Eبسم الله الرحمن الرحيم\u200E",
@@ -284,8 +278,6 @@ export function buildShareWhatsAppMessage(
     `With the blessings of grandparents, *${WEDDING.bride.grandparents}*,`,
     "",
     `*${WEDDING.bride.parents}* cordially invite you to the auspicious occasion of the wedding of their beloved daughter *${WEDDING.bride.name}* with *${WEDDING.groom.name}*.`,
-    "",
-    ...eventLines,
     "",
     "Your presence and duas will make our celebration truly memorable.",
     "",

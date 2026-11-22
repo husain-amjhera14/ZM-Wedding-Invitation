@@ -71,20 +71,17 @@ function getSiteBaseUrl(): URL {
 export const metadata: Metadata = {
   metadataBase: getSiteBaseUrl(),
   title: `${WEDDING.bride.name} & ${WEDDING.groom.name} — Wedding Invitation`,
-  description: `${WEDDING.bride.parents} solicit the honour of your presence at the wedding of ${WEDDING.bride.name} & ${WEDDING.groom.name} on ${WEDDING.event.fullDate} at ${WEDDING.venue.fullAddress}.`,
   icons: {
     icon: "/images/zm-monogram.svg",
   },
   openGraph: {
     type: "website",
     title: `${WEDDING.bride.name} & ${WEDDING.groom.name} — Wedding Invitation`,
-    description: `Tuesday, 12th Jan 2027 (5 Shaban Al Karim 1448 H) • Dinner 8:00 P.M. at Siyaganj Jamat Khana, Indore.`,
     images: [{ url: "/api/og", width: 600, height: 600 }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${WEDDING.bride.name} & ${WEDDING.groom.name} — Wedding Invitation`,
-    description: `Tuesday, 12th Jan 2027 • Dinner 8:00 P.M. at Siyaganj Jamat Khana, Indore.`,
     images: ["/api/og"],
   },
 };
