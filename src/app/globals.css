@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+:root {
+  --bg-ivory: #faf7f2;
+  --bg-sand: #f3ece1;
+  --burgundy: #5e0e24;
+  --burgundy-deep: #3d0615;
+  --burgundy-hover: #73132e;
+  --gold: #b68d40;
+  --gold-soft: #d3b270;
+  --gold-muted: #9a7942;
+  --ink: #3c1822;
+  --ink-muted: #6c4c55;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-ivory);
+    color: var(--ink);
+  }
+
+  body {
+    background-color: var(--bg-ivory);
+    color: var(--ink);
+    font-family: var(--font-cormorant), Georgia, serif;
+    overflow-x: hidden;
+  }
+}
+
+.font-script {
+  font-family: var(--font-script), cursive;
+}
+
+.font-serif-display {
+  font-family: var(--font-cinzel), Georgia, serif;
+}
+
+.font-serif-body {
+  font-family: var(--font-cormorant), Georgia, serif;
+}
+
+.font-arabic {
+  font-family: var(--font-amiri), Georgia, serif;
+}
+
+.font-sans-ui {
+  font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+}
+
+/* Full-bleed burgundy hero with interlocking gold circle filigree matching the opening curtain */
+.hero-burgundy-lattice {
+  background-color: #540c20;
+  background-image:
+    radial-gradient(circle at 50% 45%, rgba(120, 22, 49, 0.25) 0%, rgba(45, 5, 16, 0.72) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23d3b270' stroke-opacity='0.22' stroke-width='0.9'%3E%3Ccircle cx='40' cy='40' r='34'/%3E%3Ccircle cx='0' cy='0' r='34'/%3E%3Ccircle cx='80' cy='0' r='34'/%3E%3Ccircle cx='0' cy='80' r='34'/%3E%3Ccircle cx='80' cy='80' r='34'/%3E%3Ccircle cx='40' cy='0' r='34'/%3E%3Ccircle cx='40' cy='80' r='34'/%3E%3Ccircle cx='0' cy='40' r='34'/%3E%3Ccircle cx='80' cy='40' r='34'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover, 84px 84px;
+  background-position: center, center;
+}
+
+.footer-burgundy {
+  background: linear-gradient(180deg, #570c21 0%, #3d0615 100%);
+}
+
+/* Interlocking gold circle filigree pattern for the split-door opening curtain */
+.curtain-burgundy-pattern {
+  background-color: #540c20;
+  background-image:
+    radial-gradient(circle at 50% 45%, rgba(120, 22, 49, 0.25) 0%, rgba(45, 5, 16, 0.72) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23d3b270' stroke-opacity='0.22' stroke-width='0.9'%3E%3Ccircle cx='40' cy='40' r='34'/%3E%3Ccircle cx='0' cy='0' r='34'/%3E%3Ccircle cx='80' cy='0' r='34'/%3E%3Ccircle cx='0' cy='80' r='34'/%3E%3Ccircle cx='80' cy='80' r='34'/%3E%3Ccircle cx='40' cy='0' r='34'/%3E%3Ccircle cx='40' cy='80' r='34'/%3E%3Ccircle cx='0' cy='40' r='34'/%3E%3Ccircle cx='80' cy='40' r='34'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover, 84px 84px;
+  background-position: center, center;
+}
+
+.arch-card {
+  position: relative;
+  border-radius: 9999px 9999px 22px 22px;
+  background: linear-gradient(180deg, #fdfaf4 0%, #f8f2e7 100%);
+  box-shadow:
+    0 32px 80px -16px rgba(18, 2, 7, 0.65),
+    0 0 0 1px rgba(212, 176, 106, 0.65),
+    0 0 0 6px rgba(132, 92, 54, 0.32);
+}
+
+.arch-card::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 9999px 9999px 15px 15px;
+  border: 1px solid rgba(182, 141, 64, 0.42);
+  pointer-events: none;
+}
+
+.soft-card {
+  background: #fcfaf6;
+  border: 1px solid rgba(182, 141, 64, 0.22);
+  box-shadow: 0 14px 36px -18px rgba(60, 24, 34, 0.16);
+}
+
+.gold-top-card {
+  background: #fcfaf6;
+  border: 1px solid rgba(182, 141, 64, 0.22);
+  border-top: 2px solid #b68d40;
+  box-shadow: 0 16px 40px -20px rgba(60, 24, 34, 0.18);
+}
+
+.btn-burgundy {
+  background: linear-gradient(180deg, #6a1029 0%, #520a1e 100%);
+  color: #faf7f2;
+  box-shadow: 0 10px 24px -10px rgba(82, 10, 30, 0.65);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-burgundy:hover {
+  background: linear-gradient(180deg, #7c1431 0%, #610d24 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px -10px rgba(82, 10, 30, 0.72);
+}
+
+.btn-outline-burgundy {
+  background: transparent;
+  color: #5e0e24;
+  border: 1px solid rgba(94, 14, 36, 0.42);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-outline-burgundy:hover {
+  background: rgba(94, 14, 36, 0.06);
+  border-color: #5e0e24;
+  transform: translateY(-1px);
+}
+
+@keyframes gentleSway {
+  0%,
+  100% {
+    transform: rotate(-2.2deg);
+  }
+  50% {
+    transform: rotate(2.2deg);
+  }
+}
+
+.lantern-sway {
+  transform-origin: top center;
+  animation: gentleSway 6s ease-in-out infinite;
+}
+
+.lantern-sway-delayed {
+  transform-origin: top center;
+  animation: gentleSway 7.2s ease-in-out 1.4s infinite;
+}
+
+@keyframes leafFallA {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(var(--leaf-sway, 24px), 22vh, 0) rotate(75deg);
+  }
+  50% {
+    transform: translate3d(calc(var(--leaf-sway, 24px) * -0.6), 54vh, 0) rotate(165deg);
+  }
+  75% {
+    transform: translate3d(calc(var(--leaf-sway, 24px) * 0.8), 84vh, 0) rotate(255deg);
+  }
+  100% {
+    transform: translate3d(0, 112vh, 0) rotate(340deg);
+  }
+}
+
+@keyframes leafFallB {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(25deg);
+  }
+  30% {
+    transform: translate3d(var(--leaf-sway, -22px), 26vh, 0) rotate(-65deg);
+  }
+  65% {
+    transform: translate3d(calc(var(--leaf-sway, -22px) * -0.75), 68vh, 0) rotate(-175deg);
+  }
+  100% {
+    transform: translate3d(0, 112vh, 0) rotate(-310deg);
+  }
+}
+
+.falling-leaf-a,
+.falling-leaf-b {
+  position: absolute;
+  top: 0;
+  display: block;
+  will-change: transform;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.falling-leaf-a {
+  animation-name: leafFallA;
+}
+
+.falling-leaf-b {
+  animation-name: leafFallB;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falling-leaf-a,
+  .falling-leaf-b {
+    animation: none;
+    display: none;
+  }
+}
